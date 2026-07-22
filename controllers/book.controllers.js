@@ -1,5 +1,5 @@
 import  {Book} from '../models/book.model.js';
-import  {users} from '../users.js';
+import  {User} from '../models/user.model.js';
 
 export const Client=(req, res)=>{
   res.json('Hello Client!!!')
@@ -17,6 +17,19 @@ export const getAllBooks=async(req, res,next)=>{
     next(error);
   }
 };
+
+export const getBooksByCategory = async(req,res,next)=>{
+try{
+  const {category} = req.params;
+  const books = await Book.find({category});
+  res.json(books);
+
+}
+ catch(error){
+    next(error);
+  }
+};
+
 export const getOneBook=async(req, res,next)=>{
   try{
     const book= await Book.findById(req.params.id);
@@ -59,7 +72,7 @@ try{
 export const borrowBook = async(req, res,next)=>{
   try{
     const book = await Book.findById(req.params.id);
-    const user = users.find(u=>u.id==parseInt(req.params.userId));
+    const user = User.find(u=>u.id==parseInt(req.params.userId));
     if(!book||!user){
       const error =new Error("אין ספר/משתמש כזה!");
       error.status=404;
