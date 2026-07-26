@@ -3,8 +3,8 @@ const bookSchema=new Schema({
         name:{
             type: String,
             required: true,
-            minlengh: 2,
-            maxlengh: 20,
+            minlength: 2,
+            maxlength: 20,
             unique : true
         },
         price: Number,
@@ -13,6 +13,16 @@ const bookSchema=new Schema({
             required: true,
             enum:["English","Math","Children","History"]
         },
+        borrowedBy:{
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            default: null
+        },
+        rentalHistory: [{
+            user: {type: Schema.Types.ObjectId,ref: "User"},
+            borrowDate: {type: Date, default: Date.now},
+            dateReturn: Date
+        }],
         detailsAuthor:{
             name:String,
             phone: String,

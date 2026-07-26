@@ -1,3 +1,5 @@
+import 'dotenv/config';
+import {connectDB} from './confing/db.js';
 //מוסיפה בכותרת של התגובה מהשרת הוראות אבטחה לדפדפן
 import helmet from 'helmet';
 //משמשת להגבלת בקשות חוזרות לממשקי API ציבוריים
@@ -20,6 +22,7 @@ const  limiter  =  expressRateLimit ( {
 } ) 
 
 const app = express();
+connectDB();
 app.use(limiter);
 app.use(helmet());
 app.use(morgan('dev'));

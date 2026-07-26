@@ -1,4 +1,8 @@
-import { Model,Schema } from "mongoose";
+
+import { model,Schema } from "mongoose";
+const arrLength =(arr)=>{
+    return arr.length<=3;
+}
     const userSchema=new Schema({
         username: String,
         email:{
@@ -8,7 +12,7 @@ import { Model,Schema } from "mongoose";
         },
         phone:{
             type: String,
-             match: /^[0-9]{1,2}-?[0-9]{7}$/
+             match: /^[0-9]{2,3}-?[0-9]{7}$/
             },
         password:{
             type: String,
@@ -19,7 +23,14 @@ import { Model,Schema } from "mongoose";
             type: Date,
             default: Date.now
         },
-        borrowedBooks: [{code:Number,nameBook: String}]
+        borrowedBooks: {
+             type: [{
+                code:{type: Schema.Types.ObjectId,ref:"Book"},
+                nameBook: String,
+                dateReturn: Date
+            }],
+            validate: [arrLength,'אי אפשר להשאיל יותר משלושה ספרים!']
+        }
     });
     export const User = model("User",userSchema);
       

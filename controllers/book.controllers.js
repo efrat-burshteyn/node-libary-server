@@ -21,7 +21,7 @@ export const getAllBooks=async(req, res,next)=>{
 export const getBooksByCategory = async(req,res,next)=>{
 try{
   const {category} = req.params;
-  const books = await Book.find({category});
+  const books = await Book.find({categories: category});
   res.json(books);
 
 }
@@ -72,21 +72,30 @@ try{
 export const borrowBook = async(req, res,next)=>{
   try{
     const book = await Book.findById(req.params.id);
-    const user = User.find(u=>u.id==parseInt(req.params.userId));
+    const user = await User.findById(req.params.userId);
     if(!book||!user){
       const error =new Error("אין ספר/משתמש כזה!");
       error.status=404;
        return next(error);
     }
-    if(book.isAvailable){
+    if(book.borrowedBy!==null){
       const error =new Error(" הספר מושאל!");
-      error.status=404;
+      error.status=400;
       next(error);
     }
-      book.isAvailable=true;
+      book.borrowedBy=user._id;
+      book.rentalHistory.push({
+        user: user._id,
+        borrowDate: new Date()
+      });
+
+      user.borrowedBooks.push({
+        code: book._id,
+        nameBook: book.name
+      });
       await book.save();
-      user.borrowedBooks.push(book._id);
-        res.json(book);
+      await user.save();
+      res.json(book);
     } 
     catch (error){
       next(error);
@@ -95,15 +104,16 @@ export const borrowBook = async(req, res,next)=>{
 export const returnBook=async(req, res,next)=>{
   try{
     const book = await Book.findById((req.params.id));
-    const user = users.find(u=>u.id==parseInt(req.params.userId));
+    const user = await User.findById(req.params.userId);
    if(!book|| !user){
       const error =new Error("אין ספר/משתמש כזה!");
       error.status=404;
       return next(error);
  } 
-     book.isAvailable=false;
+     book.borrowedBy=null;
       await book.save();
-      user.borrowedBooks=user.borrowedBooks.filter(id=>id.toString()!==book.id.toString());
+      user.borrowedBooks=user.borrowedBooks.filter((id)=>id.code.toString()!==book._id.toString());
+      await book.save();
       res.status(200).json(book)
     } 
      catch (error){
